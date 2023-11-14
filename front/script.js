@@ -102,7 +102,7 @@ const header = document.querySelector('.header')
 const navHeight = nav.getBoundingClientRect().height
 const stickyNav = function (entries) {
   const [entry] = entries
-  console.log(entry)
+  // console.log(entry)
 
   if (!entry.isIntersecting) nav.classList.add('sticky')
   else nav.classList.remove('sticky')
@@ -116,3 +116,89 @@ const headerObserver = new IntersectionObserver(
 }
 )
 headerObserver.observe(header)
+
+// Sections revel  -- adding and removing the classes 
+const allSections = document.querySelectorAll('.section')
+
+const revealSection = function (entries, observer) {
+  const [entry] = entries
+  // console.log(entry)
+
+  if (!entry.isIntersecting) return
+  entry.target.classList.remove('section--hidden')
+  observer.unobserve(entry.target)
+}
+
+const sectionObserver = new IntersectionObserver(revealSection, (revealSection, {
+  root: null,
+  threshold: 0.15,
+}))
+allSections.forEach(function (section) {
+  sectionObserver.observe(section)
+  // section.classList.add('section--hidden')
+})
+
+
+//Lazy loading img 
+
+const imgTargets = document.querySelectorAll('img[data-src]')
+
+const loadImg = function (entries, observer) {
+  const [entry] = entries
+
+  if (!entry.isIntersecting) return
+
+  // replcae the HTML with data-src IMG 
+  entry.target.src = entry.target.dataset.src
+  entry.target.addEventListener('load', function () {
+    entry.target.classList.remove('lazy-img')
+  })
+
+  observer.unobserve(entry.target)
+}
+const imgObserver = new IntersectionObserver(loadImg, {
+  root: null,
+  threshold: 0,
+})
+
+imgTargets.forEach(img => imgObserver.observe(img));
+
+
+// Sliders
+
+const slides = document.querySelectorAll('.slide')
+const btnLeft = document.querySelector('.slider__btn--left')
+const btnRight = document.querySelector('.slider__btn--right')
+let curSlide = 0
+const maxSlide = slides.length
+
+const slider = document.querySelector('.slider')
+slider.style.transform = 'scale(0.4) trasnlateX(-800px)'
+slider.style.overflow = 'visible'
+
+
+
+const goToSlide = function (slide) {
+  slides.forEach((s, i) => s.style.transform = `translateX(${100 * (i - curSlide)}%)`)
+}
+
+goToSlide(0)
+
+const nextSlide = function () {
+  if (curSlide === maxSlide - 1) {
+    curSlide = 0
+  } else {
+    curSlide++
+  }
+
+  goToSlide(curSlide)
+}
+
+const prevSlide = function () {
+  curSlide--
+  goToSlide(curSlide)
+}
+
+
+btnRight.addEventListener('click', nextSlide)
+btnLeft.addEventListener('click', prevSlide)
